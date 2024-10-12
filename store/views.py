@@ -29,23 +29,28 @@ def product(request, pid):
 
 def category(request, cid=None):
     cat = None
-
+    query = request.GET.get('query')
     cid = request.GET.get('category', cid)
-
     where = {}
     if cid:
         cat = Category.objects.get(pk=cid)
         where['category_id'] = cid
 
+    if query:
+        where['name__icontains'] = query
+
     products = Product.objects.filter(**where)
     paginator = Paginator(products, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
+    if cat == None:
+        cat ={
+            'name': 'الكل'
+        }
     return render(
         request, 'category.html', {
             'page_obj': page_obj,
-            'category': cat
+            'categoryName': cat
         }
     )
 
